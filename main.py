@@ -15,15 +15,20 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom=(80, 300))
         self.gravity = 0
 
+        self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
+        self.jump_sound.set_volume(0.5)
+
     def player_input(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
             self.gravity = -20
+            self.jump_sound.play()
 
     def apply_gravity(self):
         self.gravity += 1
         self.rect.y += self.gravity
-        if self.rect.bottom >= 300: self.rect.bottom = 300
+        if self.rect.bottom >= 300:
+            self.rect.bottom = 300
 
     def animation_state(self):
         if self.rect.bottom < 300:
@@ -121,6 +126,9 @@ test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 game_active = False
 start_time = 0
 score = 0
+bg_Music = pygame.mixer.Sound('audio/music.wav')
+bg_Music.set_volume(0.1)
+bg_Music.play(loops=-1)
 
 player = pygame.sprite.GroupSingle()
 player.add(Player())
@@ -158,14 +166,15 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+
+        if game_active:
+            if event.type == obstacle_time and game_active:
+                obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
         else:
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 game_active = True
                 start_time = int(pygame.time.get_ticks() / 1000)
 
-        if game_active:
-            if event.type == obstacle_time and game_active:
-                obstacle_group.add(Obstacle(choice(['fly', 'snail', 'snail', 'snail'])))
 
     if game_active:
         screen.blit(sky_surface, (0, 0))
